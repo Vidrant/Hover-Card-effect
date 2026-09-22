@@ -1,18 +1,71 @@
 :root {
-  --card-height: 300px;
+  --card-height: clamp(260px, 70vw, 340px);
   --card-width: calc(var(--card-height) / 1.5);
+  --duration: 0.5s;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --bg: #252432;
+  --bg-glow: #3a3553;
+  --text: #ecebf5;
+  --text-muted: #a4a1bd;
+  --accent: #8f7dff;
+  --shade: 12 13 19;
 }
+
 * {
   box-sizing: border-box;
 }
+
 body {
-  width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  background: #252432;
+  justify-content: center;
+  gap: 48px;
+  padding: 48px 16px;
+  overflow-x: hidden;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at 50% 35%, var(--bg-glow) 0%, transparent 60%),
+    var(--bg);
+}
+
+.page-header {
+  text-align: center;
+}
+
+.page-header h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.page-header p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.page-footer {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.page-footer a {
+  color: var(--accent);
+}
+
+/* Room above each card for the character to pop out */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 140px 100px;
+  padding-top: 80px;
 }
 
 .card {
@@ -24,86 +77,112 @@ body {
   align-items: flex-end;
   padding: 0 36px;
   perspective: 2500px;
-  margin: 0 50px;
+  isolation: isolate;
   cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .cover-image {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
 .wrapper {
-  transition: all 0.5s;
   position: absolute;
-  width: 100%;
+  inset: 0;
   z-index: -1;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.6);
+  transition:
+    transform var(--duration) var(--ease),
+    box-shadow var(--duration) var(--ease);
 }
 
-.card:hover .wrapper {
+.card:is(:hover, :focus) .wrapper {
   transform: perspective(900px) translateY(-5%) rotateX(25deg) translateZ(0);
-  box-shadow: 2px 35px 32px -8px rgba(0, 0, 0, 0.75);
-  -webkit-box-shadow: 2px 35px 32px -8px rgba(0, 0, 0, 0.75);
-  -moz-box-shadow: 2px 35px 32px -8px rgba(0, 0, 0, 0.75);
+  box-shadow: 2px 35px 32px -8px rgb(0 0 0 / 0.75);
+}
+
+.card:focus-visible .wrapper {
+  box-shadow:
+    0 0 0 3px var(--accent),
+    2px 35px 32px -8px rgb(0 0 0 / 0.75);
 }
 
 .wrapper::before,
 .wrapper::after {
   content: "";
-  opacity: 0;
-  width: 100%;
-  height: 80px;
-  transition: all 0.5s;
   position: absolute;
   left: 0;
+  width: 100%;
+  transition:
+    opacity var(--duration) var(--ease),
+    height var(--duration) var(--ease);
 }
+
 .wrapper::before {
   top: 0;
   height: 100%;
+  opacity: 0;
   background-image: linear-gradient(
     to top,
     transparent 46%,
-    rgba(12, 13, 19, 0.5) 68%,
-    rgba(12, 13, 19) 97%
+    rgb(var(--shade) / 0.5) 68%,
+    rgb(var(--shade)) 97%
   );
 }
+
 .wrapper::after {
   bottom: 0;
-  opacity: 1;
+  height: 80px;
   background-image: linear-gradient(
     to bottom,
     transparent 46%,
-    rgba(12, 13, 19, 0.5) 68%,
-    rgba(12, 13, 19) 97%
+    rgb(var(--shade) / 0.5) 68%,
+    rgb(var(--shade)) 97%
   );
 }
 
-.card:hover .wrapper::before,
-.wrapper::after {
+.card:is(:hover, :focus) .wrapper::before {
   opacity: 1;
 }
 
-.card:hover .wrapper::after {
+.card:is(:hover, :focus) .wrapper::after {
   height: 120px;
 }
+
 .title {
   width: 100%;
-  transition: transform 0.5s;
+  height: auto;
+  transition: transform var(--duration) var(--ease);
 }
-.card:hover .title {
+
+.card:is(:hover, :focus) .title {
   transform: translate3d(0%, -50px, 100px);
 }
 
 .character {
-  width: 100%;
-  opacity: 0;
-  transition: all 0.5s;
   position: absolute;
   z-index: -1;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transition:
+    opacity var(--duration) var(--ease),
+    transform var(--duration) var(--ease);
 }
 
-.card:hover .character {
+.card:is(:hover, :focus) .character {
   opacity: 1;
   transform: translate3d(0%, -30%, 100px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration: 0.01ms;
+  }
 }
